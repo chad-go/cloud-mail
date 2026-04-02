@@ -8,6 +8,7 @@ import constant from '../const/constant';
 import BizError from '../error/biz-error';
 import {t} from '../i18n/i18n'
 import verifyRecordService from './verify-record-service';
+import domainUtils from '../utils/domain-uitls';
 
 const settingService = {
 
@@ -32,20 +33,18 @@ const settingService = {
 
 		let domainList = c.env.domain;
 
-		if (typeof domainList === 'string') {
-			try {
-				domainList = JSON.parse(domainList)
-			} catch (error) {
-				throw new BizError(t('notJsonDomain'));
-			}
-		}
-
 		if (!c.env.domain) {
 			throw new BizError(t('noDomainVariable'));
 		}
 
-		domainList = domainList.map(item => '@' + item);
-		setting.domainList = domainList;
+		domainList = domainUtils.getEnvDomains(domainList)
+
+		if (domainList.length === 0) {
+			throw new BizError(t('notJsonDomain'));
+		}
+
+		setting.domainList = domainList.map(item => '@' + item);
+		setting.wildcardDomainList = domainList.map(item => '@*.' + item);
 
 
 		let linuxdoSwitch = c.env.linuxdo_switch;
@@ -218,7 +217,8 @@ const settingService = {
 			linuxdoCallbackUrl: settingRow.linuxdoCallbackUrl,
 			linuxdoSwitch: settingRow.linuxdoSwitch,
 			minEmailPrefix: settingRow.minEmailPrefix,
-			projectLink: settingRow.projectLink
+			projectLink: settingRow.projectLink,
+			wildcardDomainList: settingRow.wildcardDomainList
 		};
 	}
 };

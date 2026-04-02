@@ -10,6 +10,7 @@ import user from '../entity/user';
 import verifyUtils from '../utils/verify-utils';
 import { t } from '../i18n/i18n.js';
 import emailUtils from '../utils/email-utils';
+import domainUtils from '../utils/domain-uitls';
 
 const roleService = {
 
@@ -162,14 +163,8 @@ const roleService = {
 			return true
 		}
 
-		const availIndex = availDomain.findIndex(item => {
-			const domain = emailUtils.getDomain(email.toLowerCase());
-			const availDomainItem = item.toLowerCase();
-			console.log(domain,availDomainItem)
-			return domain === availDomainItem
-		})
-
-		return availIndex > -1
+		const domain = emailUtils.getDomain(email.toLowerCase());
+		return domainUtils.isAllowedDomain(domain, availDomain)
 	},
 
 	selectByName(c, roleName) {
@@ -201,7 +196,7 @@ const roleService = {
 				const banDomain = item.toLowerCase();
 				const receiveDomain = emailUtils.getDomain(fromEmail.toLowerCase());
 
-				if (banDomain === receiveDomain) {
+				if (domainUtils.isAllowedDomain(receiveDomain, [banDomain])) {
 					return true;
 				}
 

@@ -21,6 +21,7 @@ import domainUtils from '../utils/domain-uitls';
 import account from "../entity/account";
 import { att } from '../entity/att';
 import telegramService from './telegram-service';
+import domainUtils from '../utils/domain-uitls';
 
 const emailService = {
 
@@ -177,8 +178,7 @@ const emailService = {
 
 		//判断接收方是不是全部为站内邮箱
 		const allInternal = receiveEmail.every(email => {
-			const domain = '@' + emailUtils.getDomain(email);
-			return domainList.includes(domain);
+			return domainUtils.isInternalEmail(email, c.env.domain);
 		});
 
 		if (c.env.admin !== userRow.email) {
@@ -229,7 +229,8 @@ const emailService = {
 		}
 
 		const domain = emailUtils.getDomain(accountRow.email);
-		const resendToken = resendTokens[domain];
+		const matchedDomain = domainUtils.findMatchedDomain(domain, c.env.domain) || domainUtils.normalizeDomain(domain);
+		const resendToken = resendTokens[domain] || resendTokens[matchedDomain];
 
 		//如果接收方存在站外邮箱，又没有resend token
 		if (!resendToken && !allInternal) {

@@ -18,6 +18,7 @@ import { t } from '../i18n/i18n'
 import reqUtils from '../utils/req-utils';
 import {oauth} from "../entity/oauth";
 import oauthService from "./oauth-service";
+import domainUtils from '../utils/domain-uitls';
 
 const userService = {
 
@@ -306,7 +307,7 @@ const userService = {
 
 		const { email, type, password } = params;
 
-		if (!c.env.domain.includes(emailUtils.getDomain(email))) {
+		if (!domainUtils.isAllowedDomain(emailUtils.getDomain(email), c.env.domain)) {
 			throw new BizError(t('notEmailDomain'));
 		}
 
